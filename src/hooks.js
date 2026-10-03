@@ -1,5 +1,33 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 
+ export function useRtdbQuery(query) {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
+
+    const listener = query.on('value', snapshot => {
+      const newData = [];
+
+      snapshot.forEach(childSnapshot => {
+        newData.push({
+          ...childSnapshot.val(),
+          id: childSnapshot.key,
+        });
+      });
+
+      setData(newData);
+    });
+
+    return () => query.off('value', listener);
+  }, [query]);
+
+  return data;
+}
+
+
 export function useFirestoreQuery(query) {
   const [docs, setDocs] = useState([]);
 
